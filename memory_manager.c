@@ -53,7 +53,6 @@ void free_memory(Mem memory)
                 if (segment != NULL)
                         UArray_free(&segment);
         }
-        free(&memory->regs);
         Stack_free(&memory->free_regs);
         Seq_free(&memory->main_mem);
         free(memory);
