@@ -21,9 +21,8 @@
 Mem initialize_memory(FILE *input, int len)
 {
         Mem memory = malloc(sizeof(struct Mem));
-        memory->registers = UArray_new(NUMREGS, REGSIZE);
         for (int i = 0; i < NUMREGS; i++)
-                *((unsigned*)UArray_at(memory->registers, i)) = 0;
+                memory->regs[i] = 0;
         memory->main_mem = Seq_new(10);
         Seg seg0 = UArray_new(len, REGSIZE);
         memory->free_regs = Stack_new();
@@ -46,11 +45,6 @@ Mem initialize_memory(FILE *input, int len)
         return memory;
 }
 
-unsigned *get_register(Mem memory, int reg_num)
-{
-        return (unsigned *)UArray_at(memory->registers, reg_num);
-}
-
 /* frees all data structures within the Mem struct. */
 void free_memory(Mem memory)
 {
@@ -61,7 +55,7 @@ void free_memory(Mem memory)
                 if (segment != NULL)
                         UArray_free(&segment);
         }
-        UArray_free(&memory->registers);
+        free(&memory->regs);
         Stack_free(&memory->free_regs);
         Seq_free(&memory->main_mem);
         free(memory);

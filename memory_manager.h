@@ -10,11 +10,11 @@
 #include "uarray.h"
 #include "seq.h"
 #include "stack.h"
-
+#include <stdint.h>
 typedef UArray_T Seg;
 
 typedef struct Mem {
-        UArray_T registers;
+        uint32_t regs[8];
         Seq_T main_mem;
         Stack_T free_regs;
         unsigned pcount;
@@ -22,6 +22,5 @@ typedef struct Mem {
 
 Mem initialize_memory(FILE *input, int len);
 void free_memory(Mem memory);
-unsigned * get_register(Mem memory, int reg_num);
 
 #endif
