@@ -22,7 +22,7 @@ Mem initialize_memory(FILE *input, int len)
         for (int i = 0; i < NUMREGS; i++)
                 memory->regs[i] = 0;
         memory->main_mem = Seq_new(10);
-        Seg seg0 = UArray_new(len, REGSIZE);
+        Seg seg0 = malloc(len * REGSIZE);  
         memory->free_regs = Stack_new();
         memory->pcount = 0;
         memory->news0 = 0;
@@ -37,7 +37,7 @@ Mem initialize_memory(FILE *input, int len)
                         lsb = 24-j*8;
                         inst = (unsigned)Bitpack_newu(inst, 8, lsb, c);
                 }
-                *((unsigned*)UArray_at(seg0, i)) = inst;
+                seg0[i] = inst;
         }
         fclose(input);
         Seq_addhi(memory->main_mem, seg0);
@@ -50,11 +50,11 @@ void free_memory(Mem memory)
         Seg segment;
         segment = (Seg)Seq_remlo(memory->main_mem);
         if (memory->news0 == 0)
-                UArray_free(&segment);
+                free(segment);
         while (Seq_length(memory->main_mem) > 0) {
                 segment = (Seg)Seq_remlo(memory->main_mem);
                 if (segment != NULL)
-                        UArray_free(&segment);
+                        free(segment);
         }
         /*j
         if (memory->news0 == 0)
