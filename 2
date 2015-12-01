@@ -20,7 +20,7 @@
 static inline unsigned array_len(unsigned *array)
 {
         int len = sizeof(array)/sizeof(array[0]);
-        return len;
+        return i;
 }
 
 int main (int argc, char **argv)
@@ -43,25 +43,19 @@ int main (int argc, char **argv)
         unsigned cmd = 0;
         Seg seg0;
         seg0 = (Seg)Seq_get(memory->main_mem, 0);
-        //unsigned len = array_len(seg0);
-        //while (memory->pcount < len) {
-        int count = 0;
-        while (1) {
-                cmd = seg0[memory->pcount];
-                opcode = Bitpack_getu(cmd, 4, 28);
-                if (opcode == 7) {
-                        printf("HALT!\n");
-                }
-                //printf("opcode: %d\n", opcode);
-                instr_array[opcode](memory, cmd);
+        unsigned len = array_len(seg0);
+        printf("len: %u\n", len);
+        while (memory->pcount < len) {
                 if (opcode == 12) {
                         seg0 = (Seg)Seq_get(memory->main_mem, 0);
-                        //len = array_len(seg0);
+                        len = array_len(seg0);
                 }
-                if (opcode != 12)
+                cmd = seg0[memory->pcount];
+                opcode = Bitpack_getu(cmd, 4, 28);
+                instr_array[opcode](memory, cmd);
+                if (opcode != 12) {
                         memory->pcount++;
-                count++;
-                //printf("count: %d\n", count);
+                }
         }
         free_memory(memory);
         return 0;

@@ -7,22 +7,21 @@
  * Three_regs which holds the values of 3 registers, to simplify getting and
  * storing registers for 3-register functions.  
  */
-#include <stdio.h>
+#include <stdio.h> 
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
 #include "um_methods.h"
 #include "bitpack.h"
 #include "memory_manager.h"
+#include <malloc.h>
 
 #define MAXVAL 4294967296
 #define REGSIZE 4
 #define NUMFUNCS 15
 
 /* method suite which is stored in array for easy use of UM assembler
- * instructions in memory_manager and um.c
- */
-cmd_ptr instr_array[NUMFUNCS] = {CMOV, SLOAD, SSTORE, ADD, MULT, DIV,
+ * instructions in memory_manager and um.c */ cmd_ptr instr_array[NUMFUNCS] = {CMOV, SLOAD, SSTORE, ADD, MULT, DIV,
                                  NAND, HALT, MAP, UNMAP, OUTPUT, INPUT,
                                  LOADP, LOADV};
 
@@ -36,11 +35,19 @@ typedef struct Three_regs {
  * Used in each three-register function. 
  */
 static inline Three_regs get_three_regs(Mem memory, unsigned cw)
-{        Three_regs tr = {
+{        
+        Three_regs tr = {
                 (memory->regs +  Bitpack_getu(cw, 3, 6)),
                 (memory->regs +  Bitpack_getu(cw, 3, 3)),
                 (memory->regs +  Bitpack_getu(cw, 3, 0))
         };
+        /*
+        Three_regs tr = {
+                &(memory->regs[Bitpack_getu(cw, 3, 6)]),
+                &(memory->regs[Bitpack_getu(cw, 3, 3)]),
+                &(memory->regs[Bitpack_getu(cw, 3, 0)])
+        };
+        */
         return tr;
 }
 
@@ -58,8 +65,10 @@ void SLOAD(Mem memory, unsigned cw)
 {
         Three_regs tr = get_three_regs(memory, cw);
         Seg cur_seg;
+        //printf("trb = %u\n", *tr.b);
         cur_seg = (Seg)Seq_get(memory->main_mem, *tr.b);
-        *tr.a = *((unsigned*)UArray_at(cur_seg, *tr.c));
+        *tr.a = cur_seg[*tr.c];
+        //*tr.a = *((unsigned*)UArray_at(cur_seg, *tr.c));
 }
 
 /* segmented store: $m[$r[a]$r[b]] := $r[c] */
@@ -68,7 +77,8 @@ void SSTORE(Mem memory, unsigned cw)
         Three_regs tr = get_three_regs(memory, cw);
         Seg cur_seg;
         cur_seg = (Seg)Seq_get(memory->main_mem, *tr.a);
-        *((unsigned*)UArray_at(cur_seg, *tr.b)) = *tr.c;
+        //*((unsigned*)UArray_at(cur_seg, *tr.b)) = *tr.c;
+        cur_seg[*tr.b] = *tr.c;
 }
 
 /* addition: $r[a] := ($r[b] + $r[c]) % 2^32 */
@@ -113,7 +123,10 @@ void MAP(Mem memory, unsigned cw)
 {
         Three_regs tr = get_three_regs(memory, cw);
         unsigned seg_index = 0;
-        Seg new_seg = UArray_new(*tr.c, REGSIZE);
+        // Seg new_seg = UArray_new(*tr.c, REGSIZE);
+        // TODO: is this malloc correct????
+        Seg new_seg = (Seg)malloc(*tr.c * REGSIZE);
+        //printf("size malloc'd: %lu\n", malloc_usable_size(new_seg));
         if (Stack_empty(memory->free_regs) != 1) {
                 seg_index = (unsigned)(uintptr_t)Stack_pop(memory->free_regs);
                 Seq_put(memory->main_mem, seg_index, (void*)new_seg);
@@ -135,7 +148,8 @@ void UNMAP(Mem memory, unsigned cw)
         cur_seg = Seq_put(memory->main_mem, rc, NULL);
         Stack_push(memory->free_regs, 
                    (void*)(uintptr_t)(rc));
-        UArray_free(&cur_seg);
+        //UArray_free(&cur_seg);
+        free(cur_seg);
 }
 
 /* output: $r[c] is displayed to I/O. Only values 0-255 permitted */
@@ -167,10 +181,11 @@ void LOADP(Mem memory, unsigned cw)
         new_seg = (Seg)Seq_get(memory->main_mem, rb);
         Seg old_seg = (Seg)Seq_get(memory->main_mem, 0);
         if (rb != 0) {
-                UArray_free(&old_seg);
+                free(old_seg);
                 memory->news0 = 1;
         }
         Seq_put(memory->main_mem, 0, new_seg);
+        //printf("pcount: %u\n", *tr.c);
         memory->pcount = *tr.c;
 }
 
