@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
 #include "um_methods.h"
 #include "bitpack.h"
 #include "memory_manager.h"
@@ -26,20 +27,19 @@ cmd_ptr instr_array[NUMFUNCS] = {CMOV, SLOAD, SSTORE, ADD, MULT, DIV,
                                  LOADP, LOADV};
 
 typedef struct Three_regs {
-        unsigned *a;
-        unsigned *b;
-        unsigned *c;
+        uint32_t *a;
+        uint32_t *b;
+        uint32_t *c;
 } Three_regs;
 
 /* Gets pointers to three registers and stores them in a Three_regs struct. 
  * Used in each three-register function. 
  */
 static inline Three_regs get_three_regs(Mem memory, unsigned cw)
-{
-        Three_regs tr = {
-                get_register(memory, Bitpack_getu(cw, 3, 6)),
-                get_register(memory, Bitpack_getu(cw, 3, 3)),
-                get_register(memory, Bitpack_getu(cw, 3, 0))
+{        Three_regs tr = {
+                (memory->regs +  Bitpack_getu(cw, 3, 6)),
+                (memory->regs +  Bitpack_getu(cw, 3, 3)),
+                (memory->regs +  Bitpack_getu(cw, 3, 0))
         };
         return tr;
 }
@@ -130,10 +130,11 @@ void MAP(Mem memory, unsigned cw)
 void UNMAP(Mem memory, unsigned cw)
 {
         Three_regs tr = get_three_regs(memory, cw);
+        uint32_t rc = *tr.c;
         Seg cur_seg;
-        cur_seg = Seq_put(memory->main_mem, *tr.c, NULL);
+        cur_seg = Seq_put(memory->main_mem, rc, NULL);
         Stack_push(memory->free_regs, 
-                   (void*)(uintptr_t)(*tr.c));
+                   (void*)(uintptr_t)(rc));
         UArray_free(&cur_seg);
 }
 
@@ -153,7 +154,7 @@ void INPUT(Mem memory, unsigned cw)
         Three_regs tr = get_three_regs(memory, cw);
         int input  = getchar();
         *tr.c = input;
-}
+} 
 
 /* load program: $m[$r[b]] is duplicated and moved to $m[0]. program counter is
  * set to $m[0][$r[c]]. */
@@ -162,17 +163,19 @@ void LOADP(Mem memory, unsigned cw)
         Three_regs tr = get_three_regs(memory, cw);
 
         Seg new_seg;
-        new_seg = (Seg)Seq_get(memory->main_mem, *tr.b);
+        uint32_t rb = *tr.b;
+        new_seg = (Seg)Seq_get(memory->main_mem, rb);
         Seg old_seg = (Seg)Seq_get(memory->main_mem, 0);
-        if (*tr.b != 0)
+        if (rb != 0)
                 UArray_free(&old_seg);
         Seq_put(memory->main_mem, 0, new_seg);
-        memory->pcount = *tr.c; }
+        memory->pcount = *tr.c;
+}
 
 /* load value: loads value into specified register */
 void LOADV(Mem memory, unsigned cw)
 {
         unsigned val = Bitpack_getu(cw, 25, 0);
         int reg = Bitpack_getu(cw, 3, 25);
-        *get_register(memory, reg) = val;
+        memory->regs[reg] = val;
 }
