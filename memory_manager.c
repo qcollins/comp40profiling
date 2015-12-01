@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include "bitpack.h"
 
-#define REGSIZE 4
-#define NUMREGS 8
 
 /* 
  * Creates a memory struct that holds information about the UM's memory and

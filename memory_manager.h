@@ -11,10 +11,14 @@
 #include "seq.h"
 #include "stack.h"
 #include <stdint.h>
+
+#define REGSIZE 4
+#define NUMREGS 8
+
 typedef UArray_T Seg;
 
 typedef struct Mem {
-        uint32_t regs[8];
+        uint32_t regs[NUMREGS];
         Seq_T main_mem;
         Stack_T free_regs;
         unsigned pcount;
