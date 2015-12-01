@@ -166,8 +166,10 @@ void LOADP(Mem memory, unsigned cw)
         uint32_t rb = *tr.b;
         new_seg = (Seg)Seq_get(memory->main_mem, rb);
         Seg old_seg = (Seg)Seq_get(memory->main_mem, 0);
-        if (rb != 0)
+        if (rb != 0) {
                 UArray_free(&old_seg);
+                memory->news0 = 1;
+        }
         Seq_put(memory->main_mem, 0, new_seg);
         memory->pcount = *tr.c;
 }

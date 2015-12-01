@@ -22,6 +22,7 @@ typedef struct Mem {
         Seq_T main_mem;
         Stack_T free_regs;
         unsigned pcount;
+        int news0;
 } *Mem;
 
 Mem initialize_memory(FILE *input, int len);

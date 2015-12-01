@@ -25,6 +25,7 @@ Mem initialize_memory(FILE *input, int len)
         Seg seg0 = UArray_new(len, REGSIZE);
         memory->free_regs = Stack_new();
         memory->pcount = 0;
+        memory->news0 = 0;
          
         unsigned c; 
         unsigned inst;
@@ -48,11 +49,17 @@ void free_memory(Mem memory)
 {
         Seg segment;
         segment = (Seg)Seq_remlo(memory->main_mem);
+        if (memory->news0 == 0)
+                UArray_free(&segment);
         while (Seq_length(memory->main_mem) > 0) {
                 segment = (Seg)Seq_remlo(memory->main_mem);
                 if (segment != NULL)
                         UArray_free(&segment);
         }
+        /*j
+        if (memory->news0 == 0)
+                UArray_free(&segment);
+                */
         Stack_free(&memory->free_regs);
         Seq_free(&memory->main_mem);
         free(memory);
