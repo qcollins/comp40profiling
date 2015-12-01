@@ -1,0 +1,100 @@
+COMP 40 assignment 6 UM
+Dan Meyer and Quinn Collins
+11/23/2015
+
+-------------------------------------------------------------------------------
+
+-All aspects of this assignment have been correctly implemented
+-We recieved help from several TAs
+-We spent approximately 20 hours on this assignment. We spent approximately 6
+ hours analyzing the assignment, 3 preparing the design, and 11 solving 
+ problems after analysis. 
+-The only significant departure from our original design was the use of a
+ program counter stored in the main memory struct to make LOADP more efficient.
+-Our UM takes approximately 83 min to run 50 million instructions. When we ran
+ midmark, which is 30,000 instructions, it took our UM 3 seconds with compiler
+ optimization 3. 30,000 * 1666 = 50,000, and 3 * 1666 = 5000 seconds. 5000/60 =
+ 83 min. 
+
+-------------------------------------------------------------------------------
+
+UNIT TESTS
+
+        halttest
+        halt
+
+        loadvtest
+        loadv halt
+
+        outputtest
+        loadv output
+
+        cmovtest
+        loadv cmov output
+
+        addtest
+        loadv add output
+
+        multtest
+        loadv mult output
+
+        divtest
+        loadv div output
+
+        nandtest
+        loadv nand output
+
+        maptest
+        loadv map output
+
+        unmaptest
+        loadv map unmap output
+
+        sstoretest
+        loadv map sstore
+
+        sloadtest
+        loadv map sstore sload output
+
+        inputtest
+        input output
+
+        loadptest
+        loadv loadp halt
+
+
+
+-------------------------------------------------------------------------------
+
+ARCHITECTURE
+
+Modules
+        Main
+        Main takes 32-bit words as instructions and runs them on the UM. It
+        calls Memory_manager, and UM_methods modules. 
+
+        Memory_manager
+        Memory_manager creates a struct to hold the registers and main memory
+        block. Registers are represented as UArrays, and the the main memory
+        block is represented as a Sequence that holds segments, which are in
+        turn represented as UArrays. Memory_manager also holds a program 
+        counter that keeps track of the current instruction being executed.
+        Memory_manager calls bitpack to move instructions read in into segment 
+        0 of main memory. 
+
+        Bitpack
+        Bitpack is called by um.c, memory_manager, Um_methods, and test_gen. 
+
+        Um_methods
+        Um_methods creates a method suite of the 13 functions the UM can run
+        and stores them in an array of function pointers. Um_methods calls
+        bitpack for parsing instructions, and Memory_manager to access 
+        registers and the main memory block. 
+
+        t_gen
+        t_gen takes a file of UM assembler instructions and turns them into
+        32-bit codewords. It uses Bitpack for creating codewords from their
+        constituent parts.  
+
+-------------------------------------------------------------------------------
+
