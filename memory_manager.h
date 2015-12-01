@@ -15,7 +15,7 @@
 #define REGSIZE 4
 #define NUMREGS 8
 
-typedef UArray_T Seg;
+typedef uint32_t* Seg;
 
 typedef struct Mem {
         uint32_t regs[NUMREGS];
