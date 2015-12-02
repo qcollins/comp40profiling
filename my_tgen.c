@@ -4,7 +4,7 @@
 // SLOAD: $ra = $m[$rb][$rc]
 #define SLOAD(a,b,c) printf("SLOAD %d %d %d\n", a, b, c)
 // SSTORE: $m[$ra][$rb] = $rc
-#define SSTORE(a,b,c) printf("SLOAD %d %d %d\n", a, b, c)
+#define SSTORE(a,b,c) printf("SSTORE %d %d %d\n", a, b, c)
 #define ADD(a,b,c) printf("ADD %d %d %d\n", a, b, c)
 #define MULT(a,b,c) printf("MULT %d %d %d\n", a, b, c)
 #define DIV(a,b,c) printf("DIV %d %d %d\n", a, b, c)
@@ -19,16 +19,21 @@
 void write_program()
 {
         LOADV(0, 8);
-        LOADV(1, 4);
         MAP(2, 0);
-        for (int i = 0; i < 7; i++) {
-                LOADV(0, i);
-                SSTORE(2, i, 0);
+        LOADV(0, 0);
+        LOADV(1, 1);
+        for (int i = 0; i < 8; i++) {
+                LOADV(0, i+1);
+                LOADV(1, i);
+                SSTORE(2, 1, 0);
         }
         for (int i = 0; i < 7; i++) {
-                SLOAD(0, 2, i);
+                LOADV(1, i);
+                SLOAD(0, 2, 1);
                 OUTPUT(0);
         }
+        /*
+        */
 }
 
 int main()

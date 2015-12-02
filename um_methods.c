@@ -123,7 +123,7 @@ void HALT(Mem memory, unsigned cw)
 void MAP(Mem memory, unsigned cw)
 {
         Three_regs tr = get_three_regs(memory, cw);
-        printf("a: %u    b: %u    c: %u\n", *tr.a, *tr.b, *tr.c);
+        //printf("a: %u    b: %u    c: %u\n", *tr.a, *tr.b, *tr.c);
         unsigned seg_index = 0;
         // Seg new_seg = UArray_new(*tr.c, REGSIZE);
         // TODO: is this malloc correct????

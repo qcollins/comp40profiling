@@ -49,9 +49,11 @@ int main (int argc, char **argv)
         while (1) {
                 cmd = seg0[memory->pcount];
                 opcode = Bitpack_getu(cmd, 4, 28);
+                /*
                 if (opcode == 7) {
                         printf("HALT!\n");
                 }
+                */
                 //printf("opcode: %d\n", opcode);
                 instr_array[opcode](memory, cmd);
                 if (opcode == 12) {
