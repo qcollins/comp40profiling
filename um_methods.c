@@ -12,7 +12,6 @@
 #include <assert.h>
 #include <stdint.h>
 #include "um_methods.h"
-#include "bitpack.h"
 #include "memory_manager.h"
 #include <malloc.h>
 
@@ -35,20 +34,33 @@ typedef struct Three_regs {
 /* Gets pointers to three registers and stores them in a Three_regs struct. 
  * Used in each three-register function. 
  */
+
+static inline uint32_t shiftl(uint32_t word, unsigned bits)
+{
+        if (bits == 32)
+                return 0;
+        return word << bits;
+}
+static inline uint32_t shiftr(uint32_t word, unsigned bits)
+{
+        if (bits == 32)
+                return 0;
+        return word >> bits;
+}
+
+static inline uint32_t bitpack_getu(uint32_t word, unsigned width, unsigned lsb)
+{
+        unsigned hi = lsb+width;
+        return shiftr(shiftl(word, 32-hi), 32-width);
+}
+
 static inline Three_regs get_three_regs(Mem memory, unsigned cw)
 {        
         Three_regs tr = {
-                (memory->regs +  Bitpack_getu(cw, 3, 6)),
-                (memory->regs +  Bitpack_getu(cw, 3, 3)),
-                (memory->regs +  Bitpack_getu(cw, 3, 0))
+                (memory->regs +  bitpack_getu(cw, 3, 6)),
+                (memory->regs +  bitpack_getu(cw, 3, 3)),
+                (memory->regs +  bitpack_getu(cw, 3, 0))
         };
-        /*
-        Three_regs tr = {
-                &(memory->regs[Bitpack_getu(cw, 3, 6)]),
-                &(memory->regs[Bitpack_getu(cw, 3, 3)]),
-                &(memory->regs[Bitpack_getu(cw, 3, 0)])
-        };
-        */
         return tr;
 }
 
@@ -195,7 +207,7 @@ void LOADP(Mem memory, unsigned cw)
 /* load value: loads value into specified register */
 void LOADV(Mem memory, unsigned cw)
 {
-        unsigned val = Bitpack_getu(cw, 25, 0);
-        int reg = Bitpack_getu(cw, 3, 25);
+        unsigned val = bitpack_getu(cw, 25, 0);
+        int reg = bitpack_getu(cw, 3, 25);
         memory->regs[reg] = val;
 }
