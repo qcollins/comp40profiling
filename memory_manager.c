@@ -7,7 +7,7 @@
 #include "memory_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "bitpack.h"
+#include "bitpack_inline.h"
 
 
 /* 
@@ -36,7 +36,7 @@ Mem initialize_memory(FILE *input, int len)
                 for (int j = 0; j < 4; j++) {
                         c = getc(input);
                         lsb = 24-j*8;
-                        inst = (unsigned)Bitpack_newu(inst, 8, lsb, c);
+                        inst = (unsigned)bitpack_newu(inst, 8, lsb, c);
                 }
                 seg0[i] = inst;
         }

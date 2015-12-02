@@ -14,6 +14,7 @@
 #include "um_methods.h"
 #include "memory_manager.h"
 #include <malloc.h>
+#include "bitpack_inline.h"
 
 #define MAXVAL 4294967296
 #define REGSIZE 4
@@ -35,24 +36,6 @@ typedef struct Three_regs {
  * Used in each three-register function. 
  */
 
-static inline uint32_t shiftl(uint32_t word, unsigned bits)
-{
-        if (bits == 32)
-                return 0;
-        return word << bits;
-}
-static inline uint32_t shiftr(uint32_t word, unsigned bits)
-{
-        if (bits == 32)
-                return 0;
-        return word >> bits;
-}
-
-static inline uint32_t bitpack_getu(uint32_t word, unsigned width, unsigned lsb)
-{
-        unsigned hi = lsb+width;
-        return shiftr(shiftl(word, 32-hi), 32-width);
-}
 
 static inline Three_regs get_three_regs(Mem memory, unsigned cw)
 {        

@@ -14,7 +14,7 @@
 #include "uarray.h"
 #include <stdint.h>
 #include "um_methods.h"
-#include "bitpack.h"
+#include "bitpack_inline.h"
 #include <time.h>
 
 static inline unsigned array_len(unsigned *array)
@@ -48,7 +48,7 @@ int main (int argc, char **argv)
         int count = 0;
         while (1) {
                 cmd = seg0[memory->pcount];
-                opcode = Bitpack_getu(cmd, 4, 28);
+                opcode = bitpack_getu(cmd, 4, 28);
                 /*
                 if (opcode == 7) {
                         printf("HALT!\n");
