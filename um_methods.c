@@ -21,7 +21,8 @@
 #define NUMFUNCS 15
 
 /* method suite which is stored in array for easy use of UM assembler
- * instructions in memory_manager and um.c */ cmd_ptr instr_array[NUMFUNCS] = {CMOV, SLOAD, SSTORE, ADD, MULT, DIV,
+ * instructions in memory_manager and um.c */ 
+cmd_ptr instr_array[NUMFUNCS] = {CMOV, SLOAD, SSTORE, ADD, MULT, DIV,
                                  NAND, HALT, MAP, UNMAP, OUTPUT, INPUT,
                                  LOADP, LOADV};
 
@@ -126,7 +127,8 @@ void MAP(Mem memory, unsigned cw)
         unsigned seg_index = 0;
         // Seg new_seg = UArray_new(*tr.c, REGSIZE);
         // TODO: is this malloc correct????
-        Seg new_seg = (Seg)malloc(*tr.c * REGSIZE);
+        //Seg new_seg = (Seg)malloc(*tr.c * REGSIZE);
+        Seg new_seg = calloc(*tr.c, REGSIZE);
         //printf("size malloc'd: %lu\n", malloc_usable_size(new_seg));
         if (Stack_empty(memory->free_regs) != 1) {
                 seg_index = (unsigned)(uintptr_t)Stack_pop(memory->free_regs);
