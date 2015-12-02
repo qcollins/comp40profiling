@@ -24,7 +24,6 @@ Mem initialize_memory(FILE *input, int len)
         memory->main_mem = Seq_new(10);
         // Seg seg0 = (Seg)malloc(len * REGSIZE);  
         Seg seg0 = calloc(len, REGSIZE);
-        //printf("sizeof seg0: %lu\n", sizeof(*seg0));
         memory->free_regs = Stack_new();
         memory->pcount = 0;
         memory->news0 = 0;
@@ -32,7 +31,6 @@ Mem initialize_memory(FILE *input, int len)
         unsigned c; 
         unsigned inst;
         unsigned lsb = 0;
-        //printf("len = %d\n", len);
         for (int i = 0; i < len; i++) {
                 inst = 0;
                 for (int j = 0; j < 4; j++) {
@@ -41,10 +39,8 @@ Mem initialize_memory(FILE *input, int len)
                         inst = (unsigned)Bitpack_newu(inst, 8, lsb, c);
                 }
                 seg0[i] = inst;
-                //printf("inst: %u\n", seg0[i]);
         }
         //unsigned length = sizeof(seg0)/REGSIZE;
-        //printf("length = %u\n", length);
         fclose(input);
         Seq_addhi(memory->main_mem, seg0);
         return memory;
@@ -53,7 +49,6 @@ Mem initialize_memory(FILE *input, int len)
 /* frees all data structures within the Mem struct. */
 void free_memory(Mem memory)
 {
-        printf("FREEING MEM!\n");
         Seg segment;
         segment = (Seg)Seq_remlo(memory->main_mem);
         if (memory->news0 == 0)
