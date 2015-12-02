@@ -22,7 +22,8 @@ Mem initialize_memory(FILE *input, int len)
         for (int i = 0; i < NUMREGS; i++)
                 memory->regs[i] = 0;
         memory->main_mem = Seq_new(10);
-        Seg seg0 = (Seg)malloc(len * REGSIZE);  
+        // Seg seg0 = (Seg)malloc(len * REGSIZE);  
+        Seg seg0 = calloc(len, REGSIZE);
         //printf("sizeof seg0: %lu\n", sizeof(*seg0));
         memory->free_regs = Stack_new();
         memory->pcount = 0;
