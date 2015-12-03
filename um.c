@@ -16,12 +16,6 @@
 #include "bitpack_inline.h"
 #include <time.h>
 
-static inline unsigned array_len(unsigned *array)
-{
-        int len = sizeof(array)/sizeof(array[0]);
-        return len;
-}
-
 int main (int argc, char **argv)
 { FILE *input;
         if (argc != 2) {
