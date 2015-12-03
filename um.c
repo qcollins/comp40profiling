@@ -40,8 +40,10 @@ int main (int argc, char **argv)
         Mem memory = initialize_memory(input, fsize/4);
         unsigned opcode = 0;
         uint32_t cmd = 0;
+        /*
         Seg seg0;
         seg0 = memory->main_mem[0];
+        */
         /*
         for (int i = 0; i < fsize/4; i++) {
                 printf("%u\n", seg0[i]);
@@ -49,14 +51,16 @@ int main (int argc, char **argv)
         */
         int count = 0;
         while (1) {
-                cmd = seg0[memory->pcount];
+                cmd = (memory->main_mem[0])[memory->pcount];
                 opcode = bitpack_getu(cmd, 4, 28);
                 //printf("opcode %u\n", opcode);
                 //printf("opcode: %d\n", opcode);
                 instr_array[opcode](memory, cmd);
+                /*
                 if (opcode == 12) {
                         seg0 = memory->main_mem[0];
                 }
+                */
                 if (opcode != 12)
                         memory->pcount++;
                 count++;

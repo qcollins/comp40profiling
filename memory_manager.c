@@ -18,16 +18,17 @@
  */
 Mem initialize_memory(FILE *input, int len)
 {
-        Mem memory = (Mem)malloc(sizeof(struct Mem));
+        Mem memory = (Mem)calloc(1, sizeof(struct Mem));
         /*
         for (int i = 0; i < NUMREGS; i++)
                 memory->regs[i] = 0;
                 */
         //memory->main_mem = Seq_new(10);
         memory->mem_size = 2;
-        Seg *main_mem = (Seg *)calloc(memory->mem_size, 8);
-        // Seg seg0 = (Seg)malloc(len * REGSIZE);  
-        Seg seg0 = calloc(len, REGSIZE);
+        // Seg *main_mem = (Seg *)calloc(memory->mem_size, 8);
+        Seg *main_mem = (Seg *)malloc(memory->mem_size * 8);
+        Seg seg0 = (Seg)malloc(len * REGSIZE);  
+        //Seg seg0 = calloc(len, REGSIZE);
         memory->free_regs = Stack_new();
         memory->pcount = 0;
         memory->news0 = 0;
@@ -60,7 +61,7 @@ void free_memory(Mem memory)
         if (memory->news0 == 0)
                 free(segment);
         for (unsigned i = 1; i < memory->mem_size; i++) {
-                if (main_mem[i] != NULL)
+                if (main_mem[i] != 0)
                         free(main_mem[i]);
         }
         Stack_free(&memory->free_regs);

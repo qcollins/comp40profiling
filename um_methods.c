@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include "um_methods.h"
 #include "memory_manager.h"
-#include <malloc.h>
+//#include <malloc.h>
 #include "bitpack_inline.h"
 
 #define MAXVAL 4294967296
@@ -146,6 +146,7 @@ void MAP(Mem memory, unsigned cw)
         Three_regs tr = get_three_regs(memory, cw);
         unsigned seg_index = 0;
         Seg new_seg = calloc(*tr.c, REGSIZE);
+        //Seg new_seg = malloc((*tr.c) * REGSIZE);
         if (Stack_empty(memory->free_regs) != 1) {
                 seg_index = (unsigned)(uintptr_t)Stack_pop(memory->free_regs);
                 memory->main_mem[seg_index] = new_seg;
@@ -175,7 +176,7 @@ void UNMAP(Mem memory, unsigned cw)
         Seg *main_mem = memory->main_mem;
         Seg cur_seg;
         cur_seg = main_mem[rc];
-        main_mem[rc] = NULL;
+        main_mem[rc] = 0;
         Stack_push(memory->free_regs, 
                    (void*)(uintptr_t)(rc));
         free(cur_seg);
@@ -218,9 +219,8 @@ void LOADP(Mem memory, unsigned cw)
 {
         // printf("LOADP\n");
         Three_regs tr = get_three_regs(memory, cw);
-        Seg *main_mem = memory->main_mem;
         uint32_t rb = *tr.b;
-        Seg new_seg = main_mem[rb];
+        memory->main_mem[0] = memory->main_mem[rb];
         //new_seg = seg_cpy(main_mem[rb], new_seg);
         //Seg old_seg = main_mem[0];
         if (rb != 0) {
@@ -228,7 +228,7 @@ void LOADP(Mem memory, unsigned cw)
                 //main_mem[rb] = NULL;
                 memory->news0 = 1;
         }
-        main_mem[0] = new_seg;
+        //memory->main_mem[0] = new_seg;
         memory->pcount = *tr.c;
 }
 
