@@ -9,15 +9,13 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "bitpack_inline.h"
-#include "uint_stack.h"
 
 
 /* 
  * Creates a memory struct that holds information about the UM's memory and
  * initializes all data structures within the larger data structure.
  * Mem struct gets passed around as a pointer between various functions
- * throughout the entire UM implimentation.
- */
+ * throughout the entire UM implimentation.  */
 Mem initialize_memory(FILE *input, int len)
 {
         Mem memory = (Mem)calloc(1, sizeof(struct Mem));
@@ -26,7 +24,7 @@ Mem initialize_memory(FILE *input, int len)
                 memory->regs[i] = 0;
                 */
         //memory->main_mem = Seq_new(10);
-        memory->mem_size = 2;
+        memory->mem_size = 32;
         // Seg *main_mem = (Seg *)calloc(memory->mem_size, 8);
         Seg *main_mem = (Seg *)malloc(memory->mem_size * 8);
         Seg seg0 = (Seg)malloc(len * REGSIZE);  
@@ -64,7 +62,6 @@ void free_memory(Mem memory)
         if (memory->news0 == 0)
                 free(segment);
         for (unsigned i = 1; i < memory->mem_size; i++) {
-                //if (malloc_usable_size(main_mem[i]) > 0)
                 if (main_mem[i] != 0)
                         free(main_mem[i]);
         }

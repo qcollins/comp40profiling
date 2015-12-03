@@ -7,8 +7,6 @@
 #ifndef MEMORY_MANAGER_INCLUDED 
 #define MEMORY_MANAGER_INCLUDED
 #include <stdio.h>
-#include "uarray.h"
-#include "seq.h"
 #include "uint_stack.h"
 #include <stdint.h>
 

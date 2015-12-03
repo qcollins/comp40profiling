@@ -61,14 +61,8 @@ void CMOV(Mem memory, unsigned cw)
 /* segmented load: $r[a] := $m[$r[b]$r[c]] */ 
 void SLOAD(Mem memory, unsigned cw)
 {
-        // printf("SLOAD\n");
         Three_regs tr = get_three_regs(memory, cw);
-        Seg cur_seg;
-        //printf("trb = %u\n", *tr.b);
-        //cur_seg = (Seg)Seq_get(memory->main_mem, *tr.b);
-        cur_seg = memory->main_mem[*tr.b];
-        *tr.a = cur_seg[*tr.c];
-        //*tr.a = *((unsigned*)UArray_at(cur_seg, *tr.c));
+        *tr.a = (memory->main_mem[*tr.b])[*tr.c];
 }
 
 /* segmented store: $m[$r[a]$r[b]] := $r[c] */
@@ -76,11 +70,7 @@ void SSTORE(Mem memory, unsigned cw)
 {
         // printf("SSTORE\n");
         Three_regs tr = get_three_regs(memory, cw);
-        Seg cur_seg;
-        cur_seg = memory->main_mem[*tr.a];
-        //cur_seg = (Seg)Seq_get(memory->main_mem, *tr.a);
-        //*((unsigned*)UArray_at(cur_seg, *tr.b)) = *tr.c;
-        cur_seg[*tr.b] = *tr.c;
+        (memory->main_mem)[*tr.a][*tr.b] = *tr.c;
 }
 
 /* addition: $r[a] := ($r[b] + $r[c]) % 2^32 */
@@ -128,7 +118,6 @@ void HALT(Mem memory, unsigned cw)
 */
 static inline void expand_mem(Mem memory) 
 {
-        //printf("num calls = %u\n", memory->hi_seg);
         Seg *main_mem = calloc(memory->mem_size*2, 8);
         unsigned size = memory->mem_size;
         for (unsigned i = 0; i < size; i++)
@@ -144,11 +133,9 @@ static inline void expand_mem(Mem memory)
  * initialized with $r[c] words */
 void MAP(Mem memory, unsigned cw)
 {
-        // printf("MAP\n");
         Three_regs tr = get_three_regs(memory, cw);
         unsigned seg_index = 0;
         Seg new_seg = calloc(*tr.c, REGSIZE);
-        //Seg new_seg = malloc((*tr.c) * REGSIZE);
         if (stack_empty(memory->reuse_segs) != 1) {
                 seg_index = stack_pop(memory->reuse_segs);
                 memory->main_mem[seg_index] = new_seg;
@@ -185,7 +172,7 @@ void UNMAP(Mem memory, unsigned cw)
         free(cur_seg);
 }
 
-/* output: $r[c] is displayed to I/O. Only values 0-255 permitted */
+/* output: $r[c] is displayed to I/O. Only values 0-255 permitted */ 
 void OUTPUT(Mem memory, unsigned cw)
 {
         // printf("OUTPUT\n");
@@ -238,8 +225,5 @@ void LOADP(Mem memory, unsigned cw)
 /* load value: loads value into specified register */
 void LOADV(Mem memory, unsigned cw)
 {
-        // printf("LOADV\n");
-        unsigned val = bitpack_getu(cw, 25, 0);
-        int reg = bitpack_getu(cw, 3, 25);
-        memory->regs[reg] = val;
+        memory->regs[bitpack_getu(cw, 3, 25)] = bitpack_getu(cw, 25, 0);
 }

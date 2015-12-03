@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include "memory_manager.h"
-#include "uarray.h"
 #include <stdint.h>
 #include "um_methods.h"
 #include "bitpack_inline.h"
@@ -32,7 +31,6 @@ int main (int argc, char **argv)
         fsize = (int)buffer.st_size;
         
         Mem memory = initialize_memory(input, fsize/4);
-        unsigned opcode = 0;
         uint32_t cmd = 0;
         /*
         Seg seg0;
@@ -43,21 +41,9 @@ int main (int argc, char **argv)
                 printf("%u\n", seg0[i]);
         }
         */
-        int count = 0;
         while (1) {
-                cmd = (memory->main_mem[0])[memory->pcount];
-                opcode = bitpack_getu(cmd, 4, 28);
-                //printf("opcode %u\n", opcode);
-                //printf("opcode: %d\n", opcode);
-                instr_array[opcode](memory, cmd);
-                /*
-                if (opcode == 12) {
-                        seg0 = memory->main_mem[0];
-                }
-                */
-                if (opcode != 12)
-                        memory->pcount++;
-                count++;
+                cmd = (memory->main_mem[0])[memory->pcount++];
+                instr_array[shiftr(cmd, 28)](memory, cmd);
         }
         free_memory(memory);
         return 0;
