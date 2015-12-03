@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "uarray.h"
 #include "seq.h"
-#include "stack.h"
+#include "uint_stack.h"
 #include <stdint.h>
 
 #define REGSIZE 4
@@ -21,7 +21,7 @@ typedef struct Mem {
         uint32_t regs[NUMREGS];
         //Seq_T main_mem;
         Seg *main_mem;
-        Stack_T free_regs;
+        Stack reuse_segs;
         unsigned mem_size;
         unsigned hi_seg;
         unsigned pcount;

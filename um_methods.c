@@ -15,6 +15,7 @@
 #include "memory_manager.h"
 #include <malloc.h>
 #include "bitpack_inline.h"
+#include "uint_stack.h"
 
 #define MAXVAL 4294967296
 #define REGSIZE 4
@@ -148,8 +149,8 @@ void MAP(Mem memory, unsigned cw)
         unsigned seg_index = 0;
         Seg new_seg = calloc(*tr.c, REGSIZE);
         //Seg new_seg = malloc((*tr.c) * REGSIZE);
-        if (Stack_empty(memory->free_regs) != 1) {
-                seg_index = (unsigned)(uintptr_t)Stack_pop(memory->free_regs);
+        if (stack_empty(memory->reuse_segs) != 1) {
+                seg_index = stack_pop(memory->reuse_segs);
                 memory->main_mem[seg_index] = new_seg;
         }
         else {
@@ -180,8 +181,7 @@ void UNMAP(Mem memory, unsigned cw)
         Seg cur_seg;
         cur_seg = main_mem[rc];
         main_mem[rc] = 0;
-        Stack_push(memory->free_regs, 
-                   (void*)(uintptr_t)(rc));
+        stack_push(memory->reuse_segs, rc);
         free(cur_seg);
 }
 

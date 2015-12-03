@@ -38,7 +38,7 @@ done
 # link together .o files + libraries to make executable binaries
 # using one case statement per executable binary
 case $link in
-  all|um) gcc $FLAGS -o um um.o memory_manager.o um_methods.o \
+  all|um) gcc $FLAGS -o um um.o memory_manager.o um_methods.o uint_stack.o \
                   $LIBS $CIILIBS  $LFLAGS 
                   linked=yes ;;
 esac
@@ -51,6 +51,12 @@ esac
 
 case $link in
   all|mem) gcc $FLAGS -c memory_manager.o \
+                  $LIBS $CIILIBS  #$LFLAGS 
+                  linked=no ;;
+esac
+
+case $link in
+  all|stack) gcc $FLAGS -c stack.o \
                   $LIBS $CIILIBS  #$LFLAGS 
                   linked=no ;;
 esac

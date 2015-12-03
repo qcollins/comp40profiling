@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "bitpack_inline.h"
+#include "uint_stack.h"
 
 
 /* 
@@ -30,7 +31,8 @@ Mem initialize_memory(FILE *input, int len)
         Seg *main_mem = (Seg *)malloc(memory->mem_size * 8);
         Seg seg0 = (Seg)malloc(len * REGSIZE);  
         //Seg seg0 = calloc(len, REGSIZE);
-        memory->free_regs = Stack_new();
+        // stack_init(memory->reuse_segs);
+        memory->reuse_segs = stack_init();
         memory->pcount = 0;
         memory->news0 = 0;
         memory->hi_seg = 1;
@@ -68,7 +70,7 @@ void free_memory(Mem memory)
         }
         /*
         */
-        Stack_free(&memory->free_regs);
+        stack_free(memory->reuse_segs);
         free(main_mem);
         free(memory);
 }
