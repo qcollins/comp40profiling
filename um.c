@@ -12,7 +12,7 @@
 #include "memory_manager.h"
 #include <stdint.h>
 #include "um_methods.h"
-// #include "bitpack_inline.h"
+#include "bitpack_inline.h"
 #include <time.h>
 
 int main (int argc, char **argv)
@@ -25,6 +25,7 @@ int main (int argc, char **argv)
                 printf("Invalid filename\n");
                 return 1;
         }
+
         int fsize;
         struct stat buffer;
         stat(argv[1], &buffer);
