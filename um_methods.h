@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
-// #include "um_methods.h"
 #include "memory_manager.h"
 #include <malloc.h>
 #include "bitpack_inline.h"
@@ -106,7 +105,17 @@ static inline void HALT(Mem memory, unsigned cw)
 {
         // printf("HALT\n");
         (void)cw;
-        free_memory(memory);
+        Seg *main_mem = memory->main_mem;
+        Seg segment = main_mem[0];
+        if (memory->news0 == 0)
+                free(segment);
+        for (unsigned i = 1; i < memory->mem_size; i++) {
+                if (main_mem[i] != 0)
+                        free(main_mem[i]);
+        }
+        stack_free(memory->reuse_segs);
+        free(main_mem);
+        free(memory);
         exit(0);
 }
 
