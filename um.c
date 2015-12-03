@@ -12,7 +12,7 @@
 #include "memory_manager.h"
 #include <stdint.h>
 #include "um_methods.h"
-#include "bitpack_inline.h"
+// #include "bitpack_inline.h"
 #include <time.h>
 
 int main (int argc, char **argv)

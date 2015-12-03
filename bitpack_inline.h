@@ -1,3 +1,5 @@
+#ifndef BITPACK_INLINE_INCLUDED 
+#define BITPACK_INLINE_INCLUDED
 #include <stdint.h>
 
 static inline uint32_t shiftl(uint32_t word, unsigned bits)
@@ -27,3 +29,4 @@ static inline uint32_t bitpack_newu(uint32_t word, unsigned width, unsigned lsb,
                 | shiftr(shiftl(word, 32 - lsb), 32 - lsb)  /* low part  */
                 | (value << lsb);                     /* new part  */
 }
+#endif
