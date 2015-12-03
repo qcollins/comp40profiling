@@ -7,6 +7,7 @@
 #include "memory_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <malloc.h>
 #include "bitpack_inline.h"
 
 
@@ -61,9 +62,12 @@ void free_memory(Mem memory)
         if (memory->news0 == 0)
                 free(segment);
         for (unsigned i = 1; i < memory->mem_size; i++) {
+                //if (malloc_usable_size(main_mem[i]) > 0)
                 if (main_mem[i] != 0)
                         free(main_mem[i]);
         }
+        /*
+        */
         Stack_free(&memory->free_regs);
         free(main_mem);
         free(memory);

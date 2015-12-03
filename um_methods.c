@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include "um_methods.h"
 #include "memory_manager.h"
-//#include <malloc.h>
+#include <malloc.h>
 #include "bitpack_inline.h"
 
 #define MAXVAL 4294967296
@@ -124,18 +124,19 @@ void HALT(Mem memory, unsigned cw)
 }
 
 /*
+*/
 static inline void expand_mem(Mem memory) 
 {
         //printf("num calls = %u\n", memory->hi_seg);
-        memory->mem_size *= 2;
-        Seg *main_mem = calloc(memory->mem_size, 8);
-        for (unsigned i = 0; i < memory->mem_size/2; i++)
+        Seg *main_mem = calloc(memory->mem_size*2, 8);
+        unsigned size = memory->mem_size;
+        for (unsigned i = 0; i < size; i++)
                 main_mem[i] = memory->main_mem[i];
+        memory->mem_size *= 2;
         Seg *temp = memory->main_mem; 
         memory->main_mem = main_mem;
         free(temp);
 }
-*/
 
 
 /* map segment: $r[b] is given the segment identifier. New segment is
@@ -153,11 +154,13 @@ void MAP(Mem memory, unsigned cw)
         }
         else {
                 if (memory->hi_seg >= memory->mem_size) {
+                        /*
                         memory->main_mem = realloc(memory->main_mem, 
                                                    8 * (memory->mem_size * 2));
                         
                         memory->mem_size *= 2;
-                        //expand_mem(memory);
+                        */
+                        expand_mem(memory);
                 }
                 memory->main_mem[memory->hi_seg] = new_seg;
                 seg_index = memory->hi_seg;
@@ -221,7 +224,7 @@ void LOADP(Mem memory, unsigned cw)
         Three_regs tr = get_three_regs(memory, cw);
         uint32_t rb = *tr.b;
         memory->main_mem[0] = memory->main_mem[rb];
-        //new_seg = seg_cpy(main_mem[rb], new_seg);
+        // Seg new_seg = seg_cpy(memory->main_mem[rb], new_seg);
         //Seg old_seg = main_mem[0];
         if (rb != 0) {
                 // free(main_mem[0]);
