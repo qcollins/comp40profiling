@@ -9,7 +9,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include "seq.h"
 #include "memory_manager.h"
 #include "uarray.h"
 #include <stdint.h>
@@ -40,30 +39,27 @@ int main (int argc, char **argv)
         
         Mem memory = initialize_memory(input, fsize/4);
         unsigned opcode = 0;
-        unsigned cmd = 0;
+        uint32_t cmd = 0;
         Seg seg0;
-        seg0 = (Seg)Seq_get(memory->main_mem, 0);
-        //unsigned len = array_len(seg0);
-        //while (memory->pcount < len) {
+        seg0 = memory->main_mem[0];
+        /*
+        for (int i = 0; i < fsize/4; i++) {
+                printf("%u\n", seg0[i]);
+        }
+        */
         int count = 0;
         while (1) {
                 cmd = seg0[memory->pcount];
                 opcode = bitpack_getu(cmd, 4, 28);
-                /*
-                if (opcode == 7) {
-                        printf("HALT!\n");
-                }
-                */
+                //printf("opcode %u\n", opcode);
                 //printf("opcode: %d\n", opcode);
                 instr_array[opcode](memory, cmd);
                 if (opcode == 12) {
-                        seg0 = (Seg)Seq_get(memory->main_mem, 0);
-                        //len = array_len(seg0);
+                        seg0 = memory->main_mem[0];
                 }
                 if (opcode != 12)
                         memory->pcount++;
                 count++;
-                //printf("count: %d\n", count);
         }
         free_memory(memory);
         return 0;

@@ -19,8 +19,11 @@ typedef uint32_t* Seg;
 
 typedef struct Mem {
         uint32_t regs[NUMREGS];
-        Seq_T main_mem;
+        //Seq_T main_mem;
+        Seg *main_mem;
         Stack_T free_regs;
+        unsigned mem_size;
+        unsigned hi_seg;
         unsigned pcount;
         int news0;
 } *Mem;

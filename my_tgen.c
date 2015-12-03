@@ -18,16 +18,28 @@
 #define LOADV(a,b) printf("LOADV %d %d\n", a, b)
 void write_program()
 {
-        LOADV(0, 8);
+        LOADV(0, 50);
         MAP(2, 0);
         LOADV(0, 0);
         LOADV(1, 1);
+        for(int i = 0; i < 50; i++)
+        {
+                LOADV(4, i);
+                MAP(3, 1);
+                SSTORE(2, 4, 3);
+        }
+        for(int i = 0; i < 50; i++)
+        {
+                LOADV(4, i);
+                MAP(3, 1);
+                SSTORE(2, 4, 3);
+        }
         for (int i = 0; i < 8; i++) {
                 LOADV(0, i+1);
                 LOADV(1, i);
                 SSTORE(2, 1, 0);
         }
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 8; i++) {
                 LOADV(1, i);
                 SLOAD(0, 2, 1);
                 OUTPUT(0);
