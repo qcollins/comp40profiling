@@ -17,17 +17,16 @@
 
 static inline void initialize_memory(FILE *input, int len)
 {
-        Mem memory = (Mem)calloc(1, sizeof(struct Mem));
-        memory->mem_size = 32;
+        memory.mem_size = 32;
         // Seg *main_mem = (Seg *)calloc(memory->mem_size, 8);
-        Seg *main_mem = (Seg *)malloc(memory->mem_size * 8);
+        Seg *main_mem = (Seg *)malloc(memory.mem_size * 8);
         Seg seg0 = (Seg)malloc(len * REGSIZE);  
         //Seg seg0 = calloc(len, REGSIZE);
         // stack_init(memory->reuse_segs);
-        memory->reuse_segs = stack_init();
-        memory->pcount = 0;
-        memory->news0 = 0;
-        memory->hi_seg = 1;
+        memory.reuse_segs = stack_init();
+        memory.pcount = 0;
+        memory.news0 = 0;
+        memory.hi_seg = 1;
          
         unsigned c; 
         unsigned inst;
@@ -44,23 +43,21 @@ static inline void initialize_memory(FILE *input, int len)
         //unsigned length = sizeof(seg0)/REGSIZE;
         fclose(input);
         main_mem[0] = seg0;
-        memory->main_mem = main_mem;
-        return memory;
+        memory.main_mem = main_mem;
 }
 
 static inline void free_memory()
 {
-        Seg *main_mem = memory->main_mem;
+        Seg *main_mem = memory.main_mem;
         Seg segment = main_mem[0];
-        if (memory->news0 == 0)
+        if (memory.news0 == 0)
                 free(segment);
-        for (unsigned i = 1; i < memory->mem_size; i++) {
+        for (unsigned i = 1; i < memory.mem_size; i++) {
                 if (main_mem[i] != 0)
                         free(main_mem[i]);
         }
-        stack_free(memory->reuse_segs);
+        stack_free(memory.reuse_segs);
         free(main_mem);
-        free(memory);
 }
 
 
@@ -80,7 +77,7 @@ int main (int argc, char **argv)
         stat(argv[1], &buffer);
         fsize = (int)buffer.st_size;
         
-        Mem memory = initialize_memory(input, fsize/4);
+        initialize_memory(input, fsize/4);
         uint32_t cmd = 0;
         /*
         Seg seg0;
@@ -92,9 +89,9 @@ int main (int argc, char **argv)
         }
         */
         while (1) {
-                cmd = (memory->main_mem[0])[memory->pcount++];
-                instr_array[shiftr(cmd, 28)](memory, cmd);
+                cmd = (memory.main_mem[0])[memory.pcount++];
+                instr_array[shiftr(cmd, 28)](cmd);
         }
-        free_memory(memory);
+        free_memory();
         return 0;
 }

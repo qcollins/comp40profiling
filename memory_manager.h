@@ -16,7 +16,7 @@
 
 typedef uint32_t* Seg;
 
-struct Mem {
+typedef struct Mem {
         uint32_t regs[NUMREGS];
         Seg *main_mem;
         Stack reuse_segs;
@@ -24,6 +24,8 @@ struct Mem {
         unsigned hi_seg;
         unsigned pcount;
         int news0;
-};
+} Mem;
+
+Mem memory;
 
 #endif
