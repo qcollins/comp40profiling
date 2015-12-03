@@ -61,7 +61,7 @@ void free_memory(Mem memory)
         Seg segment = main_mem[0];
         if (memory->news0 == 0)
                 free(segment);
-        for (unsigned i = 1; i < memory->mem_size; i++) {
+        for (unsigned i = 1; i < memory->hi_seg; i++) {
                 if (main_mem[i] != 0)
                         free(main_mem[i]);
         }
