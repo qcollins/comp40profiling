@@ -214,7 +214,11 @@ static inline void LOADP(unsigned cw)
         // printf("LOADP\n");
         Three_regs tr = get_three_regs(cw);
         uint32_t rb = *tr.b;
-        memory.main_mem[0] = memory.main_mem[rb];
+        if(rb != 0) {
+                free(memory.main_mem[0]);
+                memory.main_mem[0] = memory.main_mem[rb];
+        }
+
         // Seg new_seg = seg_cpy(memory.main_mem[rb], new_seg);
        //Seg old_seg = main_mem[0];
        /*
