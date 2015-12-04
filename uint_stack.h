@@ -1,3 +1,10 @@
+/*
+ * stack.h
+ * By Daniel Meyer and Quinn Collins
+ *
+ * Stack implimentation that stores uint32_t types. Makes use of the structure
+ * of a circular array to minimize memory reallocations.
+ */
 #ifndef STACK_INCLUDED
 #define STACK_INCLUDED
 #include <stdint.h>
@@ -10,13 +17,7 @@ struct Stack {
         unsigned cur;
 };
 typedef struct Stack *Stack;
-/*
-static inline Stack stack_init();
-static inline void stack_push(Stack S, unsigned u);
-static inline uint32_t stack_pop(Stack S);
-static inline void stack_free(Stack S);
-static inline int stack_empty(Stack S);
-*/
+
 static inline Stack stack_init()
 {
         Stack S;
