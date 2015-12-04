@@ -17,14 +17,22 @@
 typedef uint32_t* Seg;
 
 typedef struct Mem {
-        uint32_t regs[NUMREGS];
         Seg *main_mem;
+        uint32_t regs[NUMREGS];
         Stack reuse_segs;
         unsigned mem_size;
         unsigned hi_seg;
         unsigned pcount;
         int news0;
 } Mem;
+
+typedef struct Inst {
+        unsigned opcode;
+        unsigned ra;
+        unsigned rb;
+        unsigned rc;
+} Inst;
+Inst *cmds;
 
 Mem memory;
 

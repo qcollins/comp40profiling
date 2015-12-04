@@ -113,6 +113,7 @@ static inline void HALT(unsigned cw)
                 if (main_mem[i] != 0)
                         free(main_mem[i]);
         }
+        free(cmds);
         stack_free(memory.reuse_segs);
         free(main_mem);
         exit(0);
@@ -140,6 +141,8 @@ static inline void MAP(unsigned cw)
         Three_regs tr = get_three_regs(cw);
         unsigned seg_index = 0;
         Seg new_seg = calloc(*tr.c, REGSIZE);
+        //Seg new_seg = calloc(memory.regs[bitpack_getu(cw, 3, 0)], REGSIZE);
+        //Seg new_seg = malloc(*tr.c*REGSIZE);
         if (stack_empty(memory.reuse_segs) != 1) {
                 seg_index = stack_pop(memory.reuse_segs);
                 memory.main_mem[seg_index] = new_seg;
@@ -158,6 +161,7 @@ static inline void MAP(unsigned cw)
                 seg_index = memory.hi_seg;
                 memory.hi_seg++;
         }
+        //memory.regs[bitpack_getu(cw, 3, 3)] = seg_index;
         *tr.b = seg_index;
 }
 
