@@ -1,3 +1,12 @@
+/*
+ * bitpack_inline.h
+ * By Daniel Meyer and Quinn Collins
+ * Homework 7: Profiling
+ * Slight modification to bitpack solutions provided for the solutions to
+ * arith that makes use of static inline to improve performance and match the
+ * data type to what we use in our um, uint32_t, and only includes functions
+ * that we need.
+ */
 #ifndef BITPACK_INLINE_INCLUDED 
 #define BITPACK_INLINE_INCLUDED
 #include <stdint.h>

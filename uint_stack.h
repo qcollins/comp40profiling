@@ -1,7 +1,7 @@
 /*
  * stack.h
  * By Daniel Meyer and Quinn Collins
- *
+ * Homework 7: Profiling
  * Stack implimentation that stores uint32_t types. Makes use of the structure
  * of a circular array to minimize memory reallocations.
  */

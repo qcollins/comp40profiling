@@ -2,6 +2,7 @@
  * memory_manager.h
  * Dan Meyer and Quinn Collins
  * 11/24/15
+ * Homework 7: Profiling
  * Initializes and frees memory structure
  */
 #ifndef MEMORY_MANAGER_INCLUDED 
@@ -16,6 +17,10 @@
 
 typedef uint32_t* Seg;
 
+/*
+ * Structure of global variables that make up the representation of memory in
+ * our um.
+ */
 typedef struct Mem {
         uint32_t regs[NUMREGS];
         Seg *main_mem;
@@ -25,7 +30,6 @@ typedef struct Mem {
         unsigned pcount;
         int news0;
 } Mem;
-
 Mem memory;
 
 static inline void free_memory()

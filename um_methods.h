@@ -2,6 +2,7 @@
  * um_methods.c
  * Dan Meyer and Quinn Collins
  * 11/24/2015
+ * Homework 7: Profiling
  * implementation of all 15 UM assembler instructions. These instructions are
  * stored in a method suite that is put into an array. Also defines struct
  * Three_regs which holds the values of 3 registers, to simplify getting and
