@@ -19,9 +19,6 @@
 #define MAXVAL 4294967296
 #define NUMFUNCS 15
 
-/* method suite which is stored in array for easy use of UM assembler
- * instructions in memory_manager and um.c */ 
-
 typedef struct Three_regs {
         uint32_t *a;
         uint32_t *b;
@@ -31,8 +28,6 @@ typedef struct Three_regs {
 /* Gets pointers to three registers and stores them in a Three_regs struct. 
  * Used in each three-register function. 
  */
-
-
 static inline Three_regs get_three_regs(unsigned cw)
 {        
         Three_regs tr = {
@@ -46,7 +41,6 @@ static inline Three_regs get_three_regs(unsigned cw)
 /* conditional move: if $r[c] != 0, $r[a] := $r[b] */
 static inline void CMOV(unsigned cw)
 {
-        // printf("CMOV\n");
         Three_regs tr = get_three_regs(cw);
         if (*tr.c != 0) {
                 *tr.a = *tr.b;
@@ -63,7 +57,6 @@ static inline void SLOAD(unsigned cw)
 /* segmented store: $m[$r[a]$r[b]] := $r[c] */
 static inline void SSTORE(unsigned cw)
 {
-        // printf("SSTORE\n");
         Three_regs tr = get_three_regs(cw);
         (memory.main_mem)[*tr.a][*tr.b] = *tr.c;
 }
@@ -71,7 +64,6 @@ static inline void SSTORE(unsigned cw)
 /* addition: $r[a] := ($r[b] + $r[c]) % 2^32 */
 static inline void ADD(unsigned cw)
 {
-        // printf("ADD\n");
         Three_regs tr = get_three_regs(cw);
         *tr.a = (*tr.b + *tr.c) % MAXVAL;
 }
@@ -87,7 +79,6 @@ static inline void MULT(unsigned cw)
 /* division: $r[a] := floor($r[b] / $r[c]) */
 static inline void DIV(unsigned cw)
 {
-        // printf("DIV\n");
         Three_regs tr = get_three_regs(cw);
         *tr.a = *tr.b / *tr.c;
 }
@@ -95,7 +86,6 @@ static inline void DIV(unsigned cw)
 /* bitwise NAND: $r[a] := !($r[b] & $r[c]) */
 static inline void NAND(unsigned cw)
 {
-        // printf("NAND\n");
         Three_regs tr = get_three_regs(cw);
         *tr.a = ~((*tr.b) & (*tr.c));
 }
@@ -103,18 +93,8 @@ static inline void NAND(unsigned cw)
 /* halt: computation stops */
 static inline void HALT(unsigned cw)
 {
-        // printf("HALT\n");
         (void)cw;
-        Seg *main_mem = memory.main_mem;
-        Seg segment = main_mem[0];
-        if (memory.news0 == 0)
-                free(segment);
-        for (unsigned i = 1; i < memory.hi_seg; i++) {
-                if (main_mem[i] != 0)
-                        free(main_mem[i]);
-        }
-        stack_free(memory.reuse_segs);
-        free(main_mem);
+        free_memory();
         exit(0);
 }
 
@@ -123,8 +103,7 @@ static inline void HALT(unsigned cw)
 static inline void expand_mem()
 {
         Seg *main_mem = calloc(memory.mem_size * 2, 8);
-        unsigned size = memory.mem_size;
-        for (unsigned i = 0; i < size; i++)
+        for (unsigned i = 0; i < memory.mem_size; i++)
                 main_mem[i] = memory.main_mem[i];
         memory.mem_size *= 2;
         Seg *temp = memory.main_mem; 
@@ -146,12 +125,6 @@ static inline void MAP(unsigned cw)
         }
         else {
                 if (memory.hi_seg >= memory.mem_size) {
-                        /*
-                        memory->main_mem = realloc(memory->main_mem, 
-                                                   8 * (memory->mem_size * 2));
-                        
-                        memory->mem_size *= 2;
-                        */
                         expand_mem();
                 }
                 memory.main_mem[memory.hi_seg] = new_seg;
@@ -165,10 +138,8 @@ static inline void MAP(unsigned cw)
  * reuse the identifier */
 static inline void UNMAP(unsigned cw)
 {
-        // printf("UNMAP\n");
         Three_regs tr = get_three_regs(cw);
         uint32_t rc = *tr.c;
-        //Seg *main_mem = memory.main_mem;
         Seg cur_seg;
         cur_seg = memory.main_mem[rc];
         memory.main_mem[rc] = NULL;
@@ -179,7 +150,6 @@ static inline void UNMAP(unsigned cw)
 /* output: $r[c] is displayed to I/O. Only values 0-255 permitted */ 
 static inline void OUTPUT(unsigned cw)
 {
-        // printf("OUTPUT\n");
         Three_regs tr = get_three_regs(cw);
         int output = *tr.c;
         assert(output < 256);
@@ -190,45 +160,22 @@ static inline void OUTPUT(unsigned cw)
  * permitted. if end of input, fill $r[c] with 1s */
 static inline void INPUT(unsigned cw)
 {
-        // printf("INPUT\n");
         Three_regs tr = get_three_regs(cw);
         int input  = getchar();
         *tr.c = input;
 } 
 
-/*
-static inline Seg seg_cpy(Seg s1, Seg s2) 
-{
-        unsigned len = malloc_usable_size(s1)/4;
-        s2 = calloc(len, sizeof(s1[0]));
-        for (unsigned i = 0; i < len; i ++)
-                s2[i] = s1[i];
-        return s2;
-}
-*/
-
 /* load program: $m[$r[b]] is duplicated and moved to $m[0]. program counter is
  * set to $m[0][$r[c]]. */
 static inline void LOADP(unsigned cw)
 {
-        // printf("LOADP\n");
         Three_regs tr = get_three_regs(cw);
         uint32_t rb = *tr.b;
         if(rb != 0) {
                 free(memory.main_mem[0]);
                 memory.main_mem[0] = memory.main_mem[rb];
-        }
-
-        // Seg new_seg = seg_cpy(memory.main_mem[rb], new_seg);
-       //Seg old_seg = main_mem[0];
-       /*
-        if (rb != 0 && memory.news0 == 1)
-                free(memory.main_mem[0]);
-        */
-        if (rb != 0) {
                 memory.news0 = 1;
         }
-        //memory.main_mem[0] = new_seg;
         memory.pcount = *tr.c;
 }
 
