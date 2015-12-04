@@ -61,8 +61,6 @@ static inline void stack_free(Stack S)
 
 static inline int stack_empty(Stack S)
 {
-        if (S->used == 0)
-                return 1;
-        return 0;
+        return S->used == 0;
 }
 #endif

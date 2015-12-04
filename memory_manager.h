@@ -17,8 +17,8 @@
 typedef uint32_t* Seg;
 
 typedef struct Mem {
-        Seg *main_mem;
         uint32_t regs[NUMREGS];
+        Seg *main_mem;
         Stack reuse_segs;
         unsigned mem_size;
         unsigned hi_seg;
@@ -26,14 +26,20 @@ typedef struct Mem {
         int news0;
 } Mem;
 
-typedef struct Inst {
-        unsigned opcode;
-        unsigned ra;
-        unsigned rb;
-        unsigned rc;
-} Inst;
-Inst *cmds;
-
 Mem memory;
+
+static inline void free_memory()
+{
+        Seg *main_mem = memory.main_mem;
+        Seg segment = main_mem[0];
+        if (memory.news0 == 0)
+                free(segment);
+        for (unsigned i = 1; i < memory.hi_seg; i++) {
+                if (main_mem[i] != NULL)
+                        free(main_mem[i]);
+        }
+        stack_free(memory.reuse_segs);
+        free(main_mem);
+}
 
 #endif
