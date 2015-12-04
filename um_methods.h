@@ -72,7 +72,6 @@ static inline void ADD(unsigned cw)
 /* multiplication: $r[a] := ($r[b] * $r[c]) % 2^32 */
 static inline void MULT(unsigned cw)
 {
-        // printf("MULT\n");
         Three_regs tr = get_three_regs(cw);
         *tr.a = ((*tr.b) * (*tr.c) ) % MAXVAL;
 }
