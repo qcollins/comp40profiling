@@ -1,0 +1,30 @@
+-------------------------------------------------------------------------------
+
+COMP 40 Assignment 7 Profiling
+Dan Meyer and Quinn Collins
+12/4/2015
+
+-------------------------------------------------------------------------------
+
+We recieved help from several TA's.
+We spent approximately 20 hours on this assignment, about 5 of which were spent
+analyzing, and 15 were spent solving problems. 
+
+-------------------------------------------------------------------------------
+
+Most time-consuming routine: bitpack_inline
+
+bitpack takes up the most time in our UM by far. Bitpack_getu is called every
+time an instruction is executed, via the get_three_regs function. We 
+implemented the UM functions to take in the original uint_32 instruction rather
+than parsed information to avoid unneccessarily parsing instructions, which
+might be jumped over or only called once. This is efficient when each
+instruction is only called once, but less so if a particular set of 
+instructions is looped through repeatedly. Whenever we execute an instruction,
+we use bitpack_getu to get the registers out of the original instruction. Thus,
+bitpack is very time-consuming, not because of any inefficiency in the code, 
+but rather, because of how it is called. 
+
+The assembler of bitpack_inline itself is very efficient. Bitpack_getu and 
+bitpack_newu both call shiftl and shiftr which are very close to assembler
+already: neither has unneccessary loops or computations.  
