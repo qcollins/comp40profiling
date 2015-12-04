@@ -33,12 +33,14 @@ typedef struct Three_regs {
  */
 
 
+/*
+*/
 static inline Three_regs get_three_regs(Inst cmd)
 {        
         Three_regs tr = {
-                (memory.regs +  bitpack_getu(cw, 3, 6)),
-                (memory.regs +  bitpack_getu(cw, 3, 3)),
-                (memory.regs +  bitpack_getu(cw, 3, 0))
+                (memory.regs +  cmd.ra),
+                (memory.regs +  cmd.rb),
+                (memory.regs +  cmd.rc)
         };
         return tr;
 }
@@ -47,7 +49,7 @@ static inline Three_regs get_three_regs(Inst cmd)
 static inline void CMOV(Inst cmd)
 {
         // printf("CMOV\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         if (*tr.c != 0) {
                 *tr.a = *tr.b;
         }
@@ -56,7 +58,7 @@ static inline void CMOV(Inst cmd)
 /* segmented load: $r[a] := $m[$r[b]$r[c]] */ 
 static inline void SLOAD(Inst cmd)
 {
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         *tr.a = (memory.main_mem[*tr.b])[*tr.c];
 }
 
@@ -64,7 +66,7 @@ static inline void SLOAD(Inst cmd)
 static inline void SSTORE(Inst cmd)
 {
         // printf("SSTORE\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         (memory.main_mem)[*tr.a][*tr.b] = *tr.c;
 }
 
@@ -72,7 +74,7 @@ static inline void SSTORE(Inst cmd)
 static inline void ADD(Inst cmd)
 {
         // printf("ADD\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         *tr.a = (*tr.b + *tr.c) % MAXVAL;
 }
 
@@ -80,7 +82,7 @@ static inline void ADD(Inst cmd)
 static inline void MULT(Inst cmd)
 {
         // printf("MULT\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         *tr.a = ((*tr.b) * (*tr.c) ) % MAXVAL;
 }
 
@@ -88,7 +90,7 @@ static inline void MULT(Inst cmd)
 static inline void DIV(Inst cmd)
 {
         // printf("DIV\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         *tr.a = *tr.b / *tr.c;
 }
 
@@ -96,7 +98,7 @@ static inline void DIV(Inst cmd)
 static inline void NAND(Inst cmd)
 {
         // printf("NAND\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         *tr.a = ~((*tr.b) & (*tr.c));
 }
 
@@ -104,7 +106,7 @@ static inline void NAND(Inst cmd)
 static inline void HALT(Inst cmd)
 {
         // printf("HALT\n");
-        (void)cw;
+        (void)cmd;
         Seg *main_mem = memory.main_mem;
         Seg segment = main_mem[0];
         if (memory.news0 == 0)
@@ -137,7 +139,7 @@ static inline void expand_mem()
  * initialized with $r[c] words */
 static inline void MAP(Inst cmd)
 {
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         unsigned seg_index = 0;
         Seg new_seg = calloc(*tr.c, REGSIZE);
         if (stack_empty(memory.reuse_segs) != 1) {
@@ -166,7 +168,7 @@ static inline void MAP(Inst cmd)
 static inline void UNMAP(Inst cmd)
 {
         // printf("UNMAP\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         uint32_t rc = *tr.c;
         //Seg *main_mem = memory.main_mem;
         Seg cur_seg;
@@ -180,7 +182,7 @@ static inline void UNMAP(Inst cmd)
 static inline void OUTPUT(Inst cmd)
 {
         // printf("OUTPUT\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         int output = *tr.c;
         assert(output < 256);
         putchar(output);
@@ -191,47 +193,57 @@ static inline void OUTPUT(Inst cmd)
 static inline void INPUT(Inst cmd)
 {
         // printf("INPUT\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         int input  = getchar();
         *tr.c = input;
 } 
 
-/*
 static inline Seg seg_cpy(Seg s1, Seg s2) 
 {
         unsigned len = malloc_usable_size(s1)/4;
         s2 = calloc(len, sizeof(s1[0]));
-        for (unsigned i = 0; i < len; i ++)
+        free(cmds);
+        cmds = malloc(sizeof(Inst)*len);
+        for (unsigned i = 0; i < len; i ++) {
                 s2[i] = s1[i];
+                cmds[i].opcode = shiftr(s2[i], 28);
+                printf("opcode: %u\n", cmds[i].opcode);
+                if (cmds[i].opcode != 13) {
+                        cmds[i].ra = bitpack_getu(s2[i], 3, 6);
+                        cmds[i].rb = bitpack_getu(s2[i], 3, 3);
+                        cmds[i].rc = bitpack_getu(s2[i], 3, 0);
+                } else {
+                        cmds[i].ra = bitpack_getu(s2[i], 3, 25);
+                        cmds[i].rb = bitpack_getu(s2[i], 25, 0);
+                }
+        }
         return s2;
 }
-*/
 
 /* load program: $m[$r[b]] is duplicated and moved to $m[0]. program counter is
  * set to $m[0][$r[c]]. */
 static inline void LOADP(Inst cmd)
 {
         // printf("LOADP\n");
-        Three_regs tr = get_three_regs(cw);
+        Three_regs tr = get_three_regs(cmd);
         uint32_t rb = *tr.b;
-        memory.main_mem[0] = memory.main_mem[rb];
-        // Seg new_seg = seg_cpy(memory.main_mem[rb], new_seg);
-       //Seg old_seg = main_mem[0];
-       /*
-        if (rb != 0 && memory.news0 == 1)
-                free(memory.main_mem[0]);
-        */
         if (rb != 0) {
+                memory.main_mem[0] = seg_cpy(memory.main_mem[rb], 
+                                             memory.main_mem[0]);
                 memory.news0 = 1;
         }
         //memory.main_mem[0] = new_seg;
         memory.pcount = *tr.c;
+        /*
+        printf("tr.c = %u\n", *tr.c);
+        printf("rc = %u\n", memory.regs[cmd.rc]);
+        */
 }
 
 /* load value: loads value into specified register */
 static inline void LOADV(Inst cmd)
 {
-        memory.regs[bitpack_getu(cw, 3, 25)] = bitpack_getu(cw, 25, 0);
+        memory.regs[cmd.ra] = cmd.rb;
 }
 
 typedef void (*cmd_ptr)(Inst cmd);

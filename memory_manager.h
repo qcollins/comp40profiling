@@ -42,4 +42,12 @@ static inline void free_memory()
         free(main_mem);
 }
 
+typedef struct Inst {
+        uint32_t opcode;
+        uint32_t ra;
+        uint32_t rb;
+        uint32_t rc;
+} Inst;
+Inst *cmds;
+
 #endif
