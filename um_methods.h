@@ -33,7 +33,7 @@ typedef struct Three_regs {
  */
 
 
-static inline Three_regs get_three_regs(Inst cmd)
+static inline Three_regs get_three_regs(unsigned cw)
 {        
         Three_regs tr = {
                 (memory.regs +  bitpack_getu(cw, 3, 6)),
@@ -44,7 +44,7 @@ static inline Three_regs get_three_regs(Inst cmd)
 }
 
 /* conditional move: if $r[c] != 0, $r[a] := $r[b] */
-static inline void CMOV(Inst cmd)
+static inline void CMOV(unsigned cw)
 {
         // printf("CMOV\n");
         Three_regs tr = get_three_regs(cw);
@@ -54,14 +54,14 @@ static inline void CMOV(Inst cmd)
 }
 
 /* segmented load: $r[a] := $m[$r[b]$r[c]] */ 
-static inline void SLOAD(Inst cmd)
+static inline void SLOAD(unsigned cw)
 {
         Three_regs tr = get_three_regs(cw);
         *tr.a = (memory.main_mem[*tr.b])[*tr.c];
 }
 
 /* segmented store: $m[$r[a]$r[b]] := $r[c] */
-static inline void SSTORE(Inst cmd)
+static inline void SSTORE(unsigned cw)
 {
         // printf("SSTORE\n");
         Three_regs tr = get_three_regs(cw);
@@ -69,7 +69,7 @@ static inline void SSTORE(Inst cmd)
 }
 
 /* addition: $r[a] := ($r[b] + $r[c]) % 2^32 */
-static inline void ADD(Inst cmd)
+static inline void ADD(unsigned cw)
 {
         // printf("ADD\n");
         Three_regs tr = get_three_regs(cw);
@@ -77,7 +77,7 @@ static inline void ADD(Inst cmd)
 }
 
 /* multiplication: $r[a] := ($r[b] * $r[c]) % 2^32 */
-static inline void MULT(Inst cmd)
+static inline void MULT(unsigned cw)
 {
         // printf("MULT\n");
         Three_regs tr = get_three_regs(cw);
@@ -85,7 +85,7 @@ static inline void MULT(Inst cmd)
 }
 
 /* division: $r[a] := floor($r[b] / $r[c]) */
-static inline void DIV(Inst cmd)
+static inline void DIV(unsigned cw)
 {
         // printf("DIV\n");
         Three_regs tr = get_three_regs(cw);
@@ -93,7 +93,7 @@ static inline void DIV(Inst cmd)
 }
 
 /* bitwise NAND: $r[a] := !($r[b] & $r[c]) */
-static inline void NAND(Inst cmd)
+static inline void NAND(unsigned cw)
 {
         // printf("NAND\n");
         Three_regs tr = get_three_regs(cw);
@@ -101,7 +101,7 @@ static inline void NAND(Inst cmd)
 }
 
 /* halt: computation stops */
-static inline void HALT(Inst cmd)
+static inline void HALT(unsigned cw)
 {
         // printf("HALT\n");
         (void)cw;
@@ -135,7 +135,7 @@ static inline void expand_mem()
 
 /* map segment: $r[b] is given the segment identifier. New segment is
  * initialized with $r[c] words */
-static inline void MAP(Inst cmd)
+static inline void MAP(unsigned cw)
 {
         Three_regs tr = get_three_regs(cw);
         unsigned seg_index = 0;
@@ -163,7 +163,7 @@ static inline void MAP(Inst cmd)
 
 /* unmap segment: segment at $r[c] is unmapped. Future map instructions may
  * reuse the identifier */
-static inline void UNMAP(Inst cmd)
+static inline void UNMAP(unsigned cw)
 {
         // printf("UNMAP\n");
         Three_regs tr = get_three_regs(cw);
@@ -177,7 +177,7 @@ static inline void UNMAP(Inst cmd)
 }
 
 /* output: $r[c] is displayed to I/O. Only values 0-255 permitted */ 
-static inline void OUTPUT(Inst cmd)
+static inline void OUTPUT(unsigned cw)
 {
         // printf("OUTPUT\n");
         Three_regs tr = get_three_regs(cw);
@@ -188,7 +188,7 @@ static inline void OUTPUT(Inst cmd)
 
 /* input: UM waits for input from I/O and puts it in $r[c]. only values 0-255
  * permitted. if end of input, fill $r[c] with 1s */
-static inline void INPUT(Inst cmd)
+static inline void INPUT(unsigned cw)
 {
         // printf("INPUT\n");
         Three_regs tr = get_three_regs(cw);
@@ -209,7 +209,7 @@ static inline Seg seg_cpy(Seg s1, Seg s2)
 
 /* load program: $m[$r[b]] is duplicated and moved to $m[0]. program counter is
  * set to $m[0][$r[c]]. */
-static inline void LOADP(Inst cmd)
+static inline void LOADP(unsigned cw)
 {
         // printf("LOADP\n");
         Three_regs tr = get_three_regs(cw);
@@ -229,12 +229,12 @@ static inline void LOADP(Inst cmd)
 }
 
 /* load value: loads value into specified register */
-static inline void LOADV(Inst cmd)
+static inline void LOADV(unsigned cw)
 {
         memory.regs[bitpack_getu(cw, 3, 25)] = bitpack_getu(cw, 25, 0);
 }
 
-typedef void (*cmd_ptr)(Inst cmd);
+typedef void (*cmd_ptr)(unsigned cw);
 cmd_ptr instr_array[NUMFUNCS] = {CMOV, SLOAD, SSTORE, ADD, MULT, DIV,
                                  NAND, HALT, MAP, UNMAP, OUTPUT, INPUT,
                                  LOADP, LOADV};

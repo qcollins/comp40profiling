@@ -1,7 +1,0 @@
-Times with different optimization levels after replacing Hanson UArrays with
-boxed arrays made with calloc.
-
-0: 9.756
-1: 2.171
-2: 2.107
-3: 2.122

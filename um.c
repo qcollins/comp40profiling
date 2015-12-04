@@ -18,7 +18,6 @@
 
 static inline void initialize_memory(FILE *input, int len)
 {
-        cmds = malloc(len*sizeof(struct Inst));
         memory.mem_size = 32;
         // Seg *main_mem = (Seg *)calloc(memory->mem_size, 8);
         Seg *main_mem = (Seg *)malloc(memory.mem_size * 8);
@@ -33,7 +32,7 @@ static inline void initialize_memory(FILE *input, int len)
         unsigned c; 
         unsigned inst;
         unsigned lsb = 0;
-        /*for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
                 inst = 0;
                 for (int j = 0; j < 4; j++) {
                         c = getc(input);
@@ -41,48 +40,12 @@ static inline void initialize_memory(FILE *input, int len)
                         inst = bitpack_newu(inst, 8, lsb, c);
                 }
                 seg0[i] = inst;
-        }*/
-        for (int i = 0; i < len; i++) {
-                inst = 0;
-                c = getc(input);
-                cmds[i].opcode = c;
-                inst = bitpack_newu(inst, 8, 24, c);
-                for (int j = 1; j < 4; j++) {
-                        c = getc(input);
-                        lsb = 24-j*8;
-                        inst = bitpack_newu(inst, 8, lsb, c);
-                }
-                seg0[i] = inst;
-                if (c != 13) {
-                        cmds[i].ra = bitpack_getu(inst, 3, 6);
-                        cmds[i].rb = bitpack_getu(inst, 3, 3);
-                        cmds[i].rc = bitpack_getu(inst, 3, 0);
-                } else {
-                        cmds[i].ra = bitpack_getu(inst, 3, 25);
-                        cmds[i].rb = bitpack_getu(inst, 25, 0);
-                }
         }
 
         fclose(input);
         main_mem[0] = seg0;
         memory.main_mem = main_mem;
 }
-
-static inline void free_memory()
-{
-        Seg *main_mem = memory.main_mem;
-        Seg segment = main_mem[0];
-        if (memory.news0 == 0)
-                free(segment);
-        for (unsigned i = 1; i < memory.mem_size; i++) {
-                if (main_mem[i] != 0)
-                        free(main_mem[i]);
-        }
-        free(cmds);
-        stack_free(memory.reuse_segs);
-        free(main_mem);
-}
-
 
 int main (int argc, char **argv)
 { FILE *input;
